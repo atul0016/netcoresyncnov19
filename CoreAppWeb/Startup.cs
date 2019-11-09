@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CoreAppWeb.Models;
 using Microsoft.EntityFrameworkCore;
+using CoreAppWeb.Services;
 
 namespace CoreAppWeb
 {
@@ -39,6 +40,12 @@ namespace CoreAppWeb
                 options.UseSqlServer(Configuration.GetConnectionString("ApplicationConnection"));
             });
             // ends here
+
+            // register the Service Classes aka Repository Classes
+            services.AddScoped<IService<Category, int>, CategoryService>();
+            services.AddScoped<IService<Product, int>, ProductService>();
+            // ends here
+
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
