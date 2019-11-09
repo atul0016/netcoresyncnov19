@@ -13,6 +13,7 @@ using CoreAppWeb.Models;
 using Microsoft.EntityFrameworkCore;
 using CoreAppWeb.Services;
 using CoreAppWeb.CusrtomFilters;
+using Microsoft.AspNetCore.Identity;
 
 namespace CoreAppWeb
 {
@@ -35,6 +36,40 @@ namespace CoreAppWeb
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            // register the SecurityContext class in DI Container
+            services.AddDbContext<SecurityContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("SecurityConnection"));
+            });
+            // ends here
+
+            // add the idenity service for creating and managing users for the application
+            // this will provide instances for
+            // 1. SignManager<IdentityUser>
+            // 2.  UserManager<IdentityUser>
+            //services.AddDefaultIdentity<IdentityUser>()
+            //      .AddEntityFrameworkStores<SecurityContext>();
+
+           
+            // the user and role manager injectors
+            services.AddIdentity<IdentityUser,IdentityRole>()
+                 .AddEntityFrameworkStores<SecurityContext>();
+            // ends here
+
+            // define access policy for role
+            services.AddAuthorization(options => {
+                options.AddPolicy("ReadPolicy", policy =>
+                {
+                    policy.RequireRole("Manager", "Clerk", "Operator");
+                });
+                options.AddPolicy("WritePolicy", policy =>
+                {
+                    policy.RequireRole("Manager");
+                });
+            });
+            // ends users
+
             // register DbContext as service in DI Container
             // use the Code-First Migration to generate Database
             services.AddDbContext<SyncDbContext>(options=> {
@@ -49,13 +84,14 @@ namespace CoreAppWeb
 
             // register action filters
             services.AddMvc(options=> {
-                options.Filters.Add(typeof(AppExceptionFilter));
+              //  options.Filters.Add(typeof(AppExceptionFilter));
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseAuthentication(); // the middleware for authentication
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -69,7 +105,8 @@ namespace CoreAppWeb
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
+       
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

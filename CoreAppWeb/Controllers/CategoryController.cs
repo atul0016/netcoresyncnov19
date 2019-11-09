@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CoreAppWeb.Models;
 using CoreAppWeb.Services;
+using Microsoft.AspNetCore.Authorization;
+
 namespace CoreAppWeb.Controllers
 {
     /// <summary>
@@ -18,12 +20,13 @@ namespace CoreAppWeb.Controllers
         {
             this.service = service;
         }
+        [Authorize(Policy ="ReadPolicy")]
         public IActionResult Index()
         {
             var res = service.GetAsync().Result;
             return View(res);
         }
-
+        [Authorize(Policy = "WritePolicy")]
         public IActionResult Create()
         {
             return View(new Category());
