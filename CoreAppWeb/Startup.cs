@@ -54,6 +54,7 @@ namespace CoreAppWeb
            
             // the user and role manager injectors
             services.AddIdentity<IdentityUser,IdentityRole>()
+                .AddDefaultUI() // method for redirect url for security
                  .AddEntityFrameworkStores<SecurityContext>();
             // ends here
 
@@ -91,7 +92,7 @@ namespace CoreAppWeb
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseAuthentication(); // the middleware for authentication
+           
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -105,8 +106,8 @@ namespace CoreAppWeb
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-       
-            
+            app.UseAuthentication(); // the middleware for authentication
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
