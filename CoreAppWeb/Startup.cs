@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using CoreAppWeb.Models;
 using Microsoft.EntityFrameworkCore;
 using CoreAppWeb.Services;
+using CoreAppWeb.CusrtomFilters;
 
 namespace CoreAppWeb
 {
@@ -46,8 +47,10 @@ namespace CoreAppWeb
             services.AddScoped<IService<Product, int>, ProductService>();
             // ends here
 
-
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            // register action filters
+            services.AddMvc(options=> {
+                options.Filters.Add(typeof(AppExceptionFilter));
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -31,12 +31,26 @@ namespace CoreAppWeb.Controllers
         [HttpPost]
         public IActionResult Create(Category cat)
         {
-            if (ModelState.IsValid)
-            {
-                cat = service.CreateAsync(cat).Result;
-                return RedirectToAction("Index"); 
-            }
-            return View(cat);
+             
+            //try
+            //{
+                if (ModelState.IsValid)
+                {
+                    if (cat.BasePrice < 0) throw new Exception("Base Price cannot be -Ve");
+                    cat = service.CreateAsync(cat).Result;
+                    return RedirectToAction("Index");
+                }
+                return View(cat);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return View("Error", new ErrorViewModel() 
+            //    { 
+            //       ControllerName = this.RouteData.Values["controller"].ToString(),
+            //       ActionName = this.RouteData.Values["action"].ToString(),
+            //       ErrorMessage = ex.Message
+            //    });
+            //}
         }
 
         public IActionResult Edit(int id)
